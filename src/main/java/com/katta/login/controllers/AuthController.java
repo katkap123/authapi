@@ -10,17 +10,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.katta.login.dto.AuthResponse;
+import com.katta.login.dto.ForgotPasswordRequest;
 import com.katta.login.dto.LoginRequest;
 import com.katta.login.dto.RefreshTokenRequest;
-import com.katta.login.dto.SignupRequest;
 import com.katta.login.dto.ResetPasswordRequest;
-import com.katta.login.dto.ForgotPasswordRequest;
+import com.katta.login.dto.SignupRequest;
 import com.katta.login.entity.RefreshToken;
 import com.katta.login.entity.User;
 import com.katta.login.service.AuthService;
+import com.katta.login.service.EmailService;
 import com.katta.login.service.JwtService;
-import com.katta.login.service.RefreshTokenService;
 import com.katta.login.service.PasswordResetService;
+import com.katta.login.service.RefreshTokenService;
 
 import jakarta.validation.Valid;
 
@@ -29,12 +30,14 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailService emailService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final PasswordResetService passwordResetService;
 
-    public AuthController(AuthService authService, RefreshTokenService refreshTokenService, JwtService jwtService, PasswordResetService passwordResetService) {
+    public AuthController(AuthService authService, RefreshTokenService refreshTokenService, JwtService jwtService, PasswordResetService passwordResetService, EmailService emailService) {
         this.authService = authService;
+        this.emailService = emailService;
         this.passwordResetService = passwordResetService;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -71,28 +74,29 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(
-        @Valid @RequestBody ForgotPasswordRequest request) {
+        @PostMapping("/forgot-password")
+        public ResponseEntity<Map<String, String>> forgotPassword(
+                @Valid @RequestBody ForgotPasswordRequest request) {
 
-    String resetToken =
-            passwordResetService.createPasswordResetToken(
-                    request.email()
-            );
+        String resetToken =
+                passwordResetService.createPasswordResetToken(
+                        request.email()
+                );
 
-    if (resetToken != null) {
-        System.out.println(
-                "PASSWORD RESET TOKEN: " + resetToken
+        if (resetToken != null) {
+                emailService.sendPasswordResetEmail(
+                        request.email(),
+                        resetToken
+                );
+        }
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "If an account exists, a password reset link has been sent."
+                )
         );
-    }
-
-    return ResponseEntity.ok(
-            Map.of(
-                    "message",
-                    "If an account exists, a password reset link has been sent."
-            )
-    );
-    }
+        }
     
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(

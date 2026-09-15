@@ -1,5 +1,14 @@
 package com.katta.login.service;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Optional;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.katta.login.entity.PasswordResetToken;
 import com.katta.login.entity.User;
 import com.katta.login.repository.PasswordResetTokenRepository;
@@ -7,30 +16,22 @@ import com.katta.login.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Optional;
-import java.security.SecureRandom;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
 @Service
 public class PasswordResetService {
 
     private final PasswordResetTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
     public PasswordResetService(
             PasswordResetTokenRepository tokenRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
-
+            PasswordEncoder passwordEncoder,
+            EmailService emailService) {
+        this.emailService = emailService;
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

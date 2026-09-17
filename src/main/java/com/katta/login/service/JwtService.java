@@ -2,12 +2,16 @@ package com.katta.login.service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.katta.login.entity.Role;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -32,7 +36,8 @@ public class JwtService {
 
     public String generateToken(
             String email,
-            UUID familyId) {
+            UUID familyId,
+            Set<Role> roles) {
 
         Date now = new Date();
 
@@ -40,9 +45,14 @@ public class JwtService {
                 now.getTime() + expiration
         );
 
+        List<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .toList();
+
         return Jwts.builder()
                 .subject(email)
                 .claim("familyId", familyId.toString())
+                .claim("roles", roleNames)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(secretKey)

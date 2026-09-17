@@ -44,9 +44,9 @@ public class AuthService {
         }
 
 
-        Role userRole = roleRepository.findByName("USER")
+        Role userRole = roleRepository.findByName("STUDENT")
                 .orElseThrow(() ->
-                        new RuntimeException("USER role not found"));
+                        new RuntimeException("STUDENT role not found"));
 
         User user = new User();
 

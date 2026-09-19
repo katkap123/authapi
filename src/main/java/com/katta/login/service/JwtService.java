@@ -50,13 +50,14 @@ public class JwtService {
                 .toList();
 
         return Jwts.builder()
-                .subject(email)
-                .claim("familyId", familyId.toString())
-                .claim("roles", roleNames)
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(secretKey)
-                .compact();
+        .subject(email)
+        .claim("userId", email)
+        .claim("familyId", familyId.toString())
+        .claim("roles", roleNames)
+        .issuedAt(now)
+        .expiration(expiry)
+        .signWith(secretKey)
+        .compact();
     }
 
     public String extractEmail(String token) {

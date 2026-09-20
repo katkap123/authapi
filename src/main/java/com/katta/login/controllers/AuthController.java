@@ -121,6 +121,7 @@ public class AuthController {
 
         String accessToken =
                 jwtService.generateToken(
+                        user.getId(),
                         user.getEmail(),
                         refreshToken.getFamilyId(),
                         user.getRoles()
@@ -202,7 +203,7 @@ public class AuthController {
 
     // Generate new access token
     String accessToken =
-            jwtService.generateToken(user.getEmail(), newRefreshToken.getFamilyId(), user.getRoles());
+            jwtService.generateToken(user.getId(), user.getEmail(), newRefreshToken.getFamilyId(), user.getRoles());
 
     return ResponseEntity.ok(
             new AuthResponse(

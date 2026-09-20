@@ -35,6 +35,7 @@ public class JwtService {
     }
 
     public String generateToken(
+            UUID userId,
             String email,
             UUID familyId,
             Set<Role> roles) {
@@ -50,14 +51,14 @@ public class JwtService {
                 .toList();
 
         return Jwts.builder()
-        .subject(email)
-        .claim("userId", email)
-        .claim("familyId", familyId.toString())
-        .claim("roles", roleNames)
-        .issuedAt(now)
-        .expiration(expiry)
-        .signWith(secretKey)
-        .compact();
+            .subject(email)
+            .claim("userId", userId.toString())
+            .claim("familyId", familyId.toString())
+            .claim("roles", roleNames)
+            .issuedAt(now)
+            .expiration(expiry)
+            .signWith(secretKey)
+            .compact();
     }
 
     public String extractEmail(String token) {

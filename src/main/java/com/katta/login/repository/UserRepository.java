@@ -1,12 +1,14 @@
 package com.katta.login.repository;
 
-import com.katta.login.entity.User;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-import java.util.UUID;
+import com.katta.login.entity.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
@@ -14,4 +16,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+    List<User> findByIdIn(Collection<UUID> ids);
 }

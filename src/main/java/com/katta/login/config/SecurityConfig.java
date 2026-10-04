@@ -59,23 +59,27 @@ public class SecurityConfig {
                 )
             )
 
-            .authorizeHttpRequests(auth -> auth
+           .authorizeHttpRequests(auth -> auth
 
-                .requestMatchers(
-                    "/api/health",
-                    "/api/auth/**"
-                ).permitAll()
+            .requestMatchers(
+                "/api/health",
+                "/api/auth/**"
+            ).permitAll()
 
-                .requestMatchers(
-                    "/api/users/summaries"
-                ).hasAnyRole("TEACHER", "ADMIN")
+            .requestMatchers(
+                "/api/admin/**"
+            ).hasRole("ADMIN")
 
-                .requestMatchers(
-                    "/api/users/**"
-                ).permitAll()
+            .requestMatchers(
+                "/api/users/summaries"
+            ).hasAnyRole("TEACHER", "ADMIN")
 
-                .anyRequest().authenticated()
-            )
+            .requestMatchers(
+                "/api/users/**"
+            ).permitAll()
+
+            .anyRequest().authenticated()
+        )
 
             .addFilterBefore(
                 jwtAuthenticationFilter,

@@ -1,9 +1,11 @@
 package com.katta.login.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,4 +44,14 @@ public class StudentContactController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+        @GetMapping("/{studentId}/contacts")
+        public ResponseEntity<List<StudentContactResponse>> getContacts(
+                @PathVariable UUID studentId) {
+
+        List<StudentContactResponse> contacts =
+                studentContactService.getContacts(studentId);
+
+        return ResponseEntity.ok(contacts);
+        }
 }

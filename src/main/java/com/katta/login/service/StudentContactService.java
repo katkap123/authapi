@@ -1,5 +1,6 @@
 package com.katta.login.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.katta.login.dto.CreateStudentContactRequest;
 import com.katta.login.dto.StudentContactResponse;
 import com.katta.login.entity.StudentContact;
+import com.katta.login.entity.User;
 import com.katta.login.repository.StudentContactRepository;
 import com.katta.login.repository.UserRepository;
 
@@ -31,10 +33,23 @@ public class StudentContactService {
             CreateStudentContactRequest request) {
 
         // 1. Student must exist
-        if (!userRepository.existsById(studentId)) {
-            throw new IllegalArgumentException(
-                    "Student not found"
-            );
+        User student = userRepository
+                .findById(studentId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Student not found")
+                );
+
+        boolean isStudent;
+        isStudent = student.getRoles()
+                .stream()
+                .anyMatch(role ->
+                        "STUDENT".equalsIgnoreCase(role.getName())
+                );
+
+        if (!isStudent) {
+        throw new IllegalArgumentException(
+                "User is not a student"
+        );
         }
 
         // 2. At least email or phone must be provided
@@ -50,6 +65,19 @@ public class StudentContactService {
             throw new IllegalArgumentException(
                     "At least one contact method is required"
             );
+        }
+
+        if (request.primaryContact()) {
+
+        List<StudentContact> existingPrimaryContacts =
+                studentContactRepository
+                        .findByStudentIdAndPrimaryContactTrue(studentId);
+
+        for (StudentContact existingContact : existingPrimaryContacts) {
+                existingContact.setPrimaryContact(false);
+        }
+
+        studentContactRepository.saveAll(existingPrimaryContacts);
         }
 
         StudentContact contact = new StudentContact();
@@ -73,6 +101,20 @@ public class StudentContactService {
 
         return toResponse(saved);
     }
+
+        @Transactional(readOnly = true)
+        public List<StudentContactResponse> getContacts(UUID studentId) {
+
+        if (!userRepository.existsById(studentId)) {
+                throw new IllegalArgumentException("Student not found");
+        }
+
+        return studentContactRepository
+                .findByStudentId(studentId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+        }
 
     private StudentContactResponse toResponse(
             StudentContact contact) {

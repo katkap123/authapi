@@ -11,4 +11,5 @@ public interface StudentContactRepository
         extends JpaRepository<StudentContact, UUID> {
 
     List<StudentContact> findByStudentId(UUID studentId);
+    List<StudentContact> findByStudentIdAndPrimaryContactTrue(UUID studentId);
 }

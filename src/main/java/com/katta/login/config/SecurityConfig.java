@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.katta.login.security.InternalApiKeyFilter;
 import com.katta.login.security.JwtAuthenticationFilter;
 import com.katta.login.security.RestAccessDeniedHandler;
 import com.katta.login.security.RestAuthenticationEntryPoint;
@@ -21,16 +22,19 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
+    private final InternalApiKeyFilter internalApiKeyFilter;
 
     public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            RestAuthenticationEntryPoint authenticationEntryPoint,
-            RestAccessDeniedHandler accessDeniedHandler) {
+        JwtAuthenticationFilter jwtAuthenticationFilter,
+        InternalApiKeyFilter internalApiKeyFilter,
+        RestAuthenticationEntryPoint authenticationEntryPoint,
+        RestAccessDeniedHandler accessDeniedHandler) {
 
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-        this.accessDeniedHandler = accessDeniedHandler;
-    }
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.internalApiKeyFilter = internalApiKeyFilter;
+    this.authenticationEntryPoint = authenticationEntryPoint;
+    this.accessDeniedHandler = accessDeniedHandler;
+}
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,8 +66,9 @@ public class SecurityConfig {
            .authorizeHttpRequests(auth -> auth
 
             .requestMatchers(
-                "/api/health",
-                "/api/auth/**"
+                    "/api/health",
+                    "/api/auth/**",
+                    "/api/internal/**"
             ).permitAll()
 
             .requestMatchers(
@@ -81,6 +86,14 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
 
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            )
+            .addFilterBefore(
+                internalApiKeyFilter,
+                JwtAuthenticationFilter.class
+            )
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class

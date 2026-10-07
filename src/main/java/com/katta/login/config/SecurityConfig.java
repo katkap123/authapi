@@ -86,15 +86,15 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
 
-            .addFilterBefore(
-                internalApiKeyFilter,
-                JwtAuthenticationFilter.class
-            )
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            )
-            .cors(Customizer.withDefaults());
+        .addFilterBefore(
+            internalApiKeyFilter,
+            UsernamePasswordAuthenticationFilter.class
+        )
+        .addFilterBefore(
+            jwtAuthenticationFilter,
+            UsernamePasswordAuthenticationFilter.class
+        )
+        .cors(Customizer.withDefaults());
 
         return http.build();
     }

@@ -87,10 +87,6 @@ public class SecurityConfig {
         )
 
             .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            )
-            .addFilterBefore(
                 internalApiKeyFilter,
                 JwtAuthenticationFilter.class
             )

@@ -36,21 +36,29 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String providedApiKey =
-                request.getHeader(HEADER_NAME);
+        System.out.println("===== INTERNAL API KEY FILTER =====");
+        System.out.println("Request URI: " + request.getRequestURI());
 
-        if (providedApiKey == null ||
-                !internalApiKey.equals(providedApiKey)) {
+        String providedApiKey = request.getHeader(HEADER_NAME);
+
+        System.out.println("API key header present: " + (providedApiKey != null));
+        System.out.println(
+            "API key matches: " +
+            (providedApiKey != null && internalApiKey.equals(providedApiKey))
+        );
+
+        if (providedApiKey == null || !internalApiKey.equals(providedApiKey)) {
+            System.out.println("Internal API key rejected");
 
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
-
             response.getWriter().write(
-                    "{\"message\":\"Invalid internal API key\"}"
+                "{\"message\":\"Invalid internal API key\"}"
             );
-
             return;
         }
+
+        System.out.println("Internal API key accepted");
 
         filterChain.doFilter(request, response);
     }
